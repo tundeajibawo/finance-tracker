@@ -1,0 +1,6 @@
+{
+  "name": "Finance Tracker",
+  "description": "Mobile personal finance and budgeting application featuring accounts overview, transactions, budget tracking, savings goals, and account settings.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

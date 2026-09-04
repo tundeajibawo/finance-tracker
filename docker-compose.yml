@@ -1,0 +1,23 @@
+services:
+  dev:
+    build:
+      context: .
+      target: builder
+    ports:
+      - "3000:3000"
+    environment:
+      - DISABLE_HMR=false
+    volumes:
+      - .:/app:chmod775
+      - /app/node_modules
+    command: ["npm", "run", "dev"]
+    # Changes to src/ or public/ are reflected instantly — Vite HMR pushes updates
+
+  # Optional: production build served by nginx
+  prod:
+    build:
+      context: .
+      target: runner
+    restart: always
+    ports:
+      - "80:80"
