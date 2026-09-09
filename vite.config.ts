@@ -3,10 +3,13 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 import { setDefaultResultOrder } from 'node:dns';
+import { setDefaultAutoSelectFamily } from 'node:net';
 import {defineConfig} from 'vite';
 
-// ponytail: host is behind Cloudflare; no working IPv6 route in docker -> prefer IPv4
+// ponytail: Cloudflare host, IPv6 route hangs in docker -> IPv4 only. Disable
+// Happy Eyeballs so the broken IPv6 attempt can't mask the working IPv4 connect.
 setDefaultResultOrder('ipv4first');
+setDefaultAutoSelectFamily(false);
 
 export default defineConfig(() => {
   return {

@@ -145,7 +145,7 @@ export function OverviewScreen({
   }, [transactions]);
 
   return (
-    <Screen refreshing={loading && data.length > 0} onRefresh={load}>
+    <Screen refreshing={syncing || (loading && data.length > 0)} onRefresh={doSync}>
       {/* Greeting */}
       <div className="flex items-center mb-5">
         <button

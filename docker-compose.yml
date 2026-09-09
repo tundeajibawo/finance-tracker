@@ -3,8 +3,9 @@ services:
     build:
       context: .
       target: builder
+    restart: always
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - DISABLE_HMR=false
     volumes:
@@ -13,11 +14,11 @@ services:
     command: ["npm", "run", "dev"]
     # Changes to src/ or public/ are reflected instantly — Vite HMR pushes updates
 
-  # Optional: production build served by nginx
+  # Production build served by nginx
   prod:
     build:
       context: .
       target: runner
     restart: always
     ports:
-      - "80:80"
+      - "3000:80"

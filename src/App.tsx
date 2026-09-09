@@ -16,7 +16,7 @@ import { TransactionDetailsModal } from './components/modals/TransactionDetailsM
 import { SettingsModals } from './components/modals/SettingsModals';
 
 import { login as apiLogin, register as apiRegister, me } from './api/auth';
-import { listAccounts, listTransactions, syncAccounts } from './api/accounts';
+import { listAccounts, listTransactions, syncAccounts, syncAccountsThrottled } from './api/accounts';
 import { ApiError, onSessionExpired } from './api/client';
 import { clearTokens, getTokens, setTokens } from './api/token';
 import { mapApiAccountList, mapApiTransactionList } from './api/mappers';
@@ -118,6 +118,7 @@ export default function App() {
       email: res.data.email || p.email,
     }));
     await refreshData();
+    syncAccountsThrottled().catch(() => {});
     setSession('authed');
   };
 
