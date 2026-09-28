@@ -12,3 +12,11 @@ export function register(payload: RegisterRequest) {
 export function me() {
   return request<MeResponse>('/auth/me');
 }
+
+export function resetPassword(email: string) {
+  return request<StatusResponse>('/auth/resetPassword', { method: 'POST', auth: false, body: { email } });
+}
+
+export function confirmPasswordReset(code: string, password: string) {
+  return request<StatusResponse>('/auth/passwordReset', { method: 'POST', auth: false, body: { code, password } });
+}

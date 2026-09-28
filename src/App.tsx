@@ -11,12 +11,13 @@ import { SettingsScreen } from './components/screens/SettingsScreen';
 import { ProfileScreen } from './components/screens/ProfileScreen';
 import { LoginScreen } from './components/screens/LoginScreen';
 import { RegisterScreen } from './components/screens/RegisterScreen';
+import { ResetPasswordScreen } from './components/screens/ResetPasswordScreen';
 import { AddBudgetModal } from './components/modals/AddBudgetModal';
 import { TransactionDetailsModal } from './components/modals/TransactionDetailsModal';
 import { SettingsModals } from './components/modals/SettingsModals';
 
 import { login as apiLogin, register as apiRegister, me } from './api/auth';
-import { listAccounts, listTransactions, syncAccounts, syncAccountsThrottled } from './api/accounts';
+import { listAccounts, listTransactions, syncAccounts } from './api/accounts';
 import { ApiError, onSessionExpired } from './api/client';
 import { clearTokens, getTokens, setTokens } from './api/token';
 import { mapApiAccountList, mapApiTransactionList } from './api/mappers';
@@ -29,6 +30,10 @@ const noData = (e: unknown) =>
 export default function App() {
   const [session, setSession] = useState<Session>('loading');
   const [authScreen, setAuthScreen] = useState<'login' | 'register'>('login');
+  // ponytail: reset links land on any path with ?code= (e.g. /sucess?code=…) — SPA fallback serves index.html
+  const [resetCode, setResetCode] = useState<string | null>(() =>
+    typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('code')
+  );
   const [currentScreen, setCurrentScreen] = useState<ScreenType>('overview');
 
   // Local-persisted state (budgets + profile prefs)
@@ -118,7 +123,6 @@ export default function App() {
       email: res.data.email || p.email,
     }));
     await refreshData();
-    syncAccountsThrottled().catch(() => {});
     setSession('authed');
   };
 
@@ -195,6 +199,18 @@ export default function App() {
   }
 
   if (session === 'guest') {
+    if (resetCode) {
+      return (
+        <ResetPasswordScreen
+          code={resetCode}
+          onDone={() => {
+            window.history.replaceState({}, '', window.location.pathname);
+            setResetCode(null);
+            setAuthScreen('login');
+          }}
+        />
+      );
+    }
     return authScreen === 'login' ? (
       <LoginScreen onLogin={handleLogin} onSwitchToRegister={() => setAuthScreen('register')} />
     ) : (
@@ -235,7 +251,6 @@ export default function App() {
               setCurrentScreen('transactions');
             }}
             onAccountsLoaded={setAccounts}
-            onSync={handleSync}
           />
         )}
 

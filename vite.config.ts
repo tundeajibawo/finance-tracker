@@ -53,8 +53,9 @@ export default defineConfig(() => {
       // ponytail: API has no CORS headers, proxy /api in dev; add nginx proxy_pass for prod
       proxy: {
         '/api': {
-          target: 'https://api.everynaira.ng',
+          target: 'https://caddy.everynaira.orb.local',
           changeOrigin: true,
+          secure: false,
           rewrite: (p) => p.replace(/^\/api/, ''),
         },
       },
@@ -62,8 +63,9 @@ export default defineConfig(() => {
     preview: {
       proxy: {
         '/api': {
-          target: 'https://api.everynaira.ng',
+          target: 'https://caddy.everynaira.orb.local',
           changeOrigin: true,
+          secure: false,
           rewrite: (p) => p.replace(/^\/api/, ''),
         },
       },

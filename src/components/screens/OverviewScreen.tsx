@@ -21,7 +21,6 @@ interface OverviewScreenProps {
   onSelectCategory?: (category: string) => void;
   onSelectStat?: (stat: 'income' | 'expenses') => void;
   onAccountsLoaded?: (accounts: AccountItem[]) => void;
-  onSync?: () => Promise<{ ok: boolean; message: string }>;
 }
 
 const EXPENSE_CARD_COLORS = [
@@ -42,7 +41,6 @@ export function OverviewScreen({
   onSelectCategory,
   onSelectStat,
   onAccountsLoaded,
-  onSync,
 }: OverviewScreenProps) {
   const [data, setData] = useState<AccountItem[]>(accounts);
   const [loading, setLoading] = useState(accounts.length === 0);
@@ -50,7 +48,6 @@ export function OverviewScreen({
   const [showAccounts, setShowAccounts] = useState(false);
   const [showBalance, setShowBalance] = useState(() => localStorage.getItem('finance_show_balance') !== 'false');
   const [syncing, setSyncing] = useState(false);
-  const [syncMsg, setSyncMsg] = useState<{ ok: boolean; message: string } | null>(null);
 
   const load = useCallback(async () => {
     setError(null);
@@ -74,12 +71,9 @@ export function OverviewScreen({
   const { connecting, connect, url: connectUrl, isOpen: isConnectOpen, close: closeConnect } = useConnectAccount(load);
 
   const doSync = async () => {
-    if (!onSync || syncing) return;
+    if (syncing) return;
     setSyncing(true);
-    setSyncMsg(null);
-    const res = await onSync();
-    setSyncMsg(res);
-    if (res.ok) await load();
+    await load();
     setSyncing(false);
   };
 
@@ -197,17 +191,15 @@ export function OverviewScreen({
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-white/75">Total Balance</p>
                 <div className="flex items-center gap-1.5">
-                  {onSync && (
-                    <button
-                      id="btn-sync-balance"
-                      onClick={doSync}
-                      disabled={syncing}
-                      aria-label="Sync accounts"
-                      className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 disabled:opacity-60 flex items-center justify-center cursor-pointer transition-colors"
-                    >
-                      <RefreshCw className={`w-3.5 h-3.5 text-white ${syncing ? 'animate-spin' : ''}`} />
-                    </button>
-                  )}
+                  <button
+                    id="btn-sync-balance"
+                    onClick={doSync}
+                    disabled={syncing}
+                    aria-label="Sync accounts"
+                    className="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 disabled:opacity-60 flex items-center justify-center cursor-pointer transition-colors"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 text-white ${syncing ? 'animate-spin' : ''}`} />
+                  </button>
                   <button
                     id="btn-toggle-balance"
                     onClick={() => {
@@ -224,11 +216,6 @@ export function OverviewScreen({
               </div>
               <p className="text-3xl font-bold text-white mt-1">{showBalance ? fmt(totalBalance) : '₦ ••••••'}</p>
               {lastSyncDate && <p className="text-[11px] font-medium text-white/65 mt-1">as at {lastSyncDate}</p>}
-              {syncMsg && (
-                <p className={`text-[11px] font-semibold mt-1 ${syncMsg.ok ? 'text-emerald-200' : 'text-red-200'}`}>
-                  {syncMsg.message}
-                </p>
-              )}
               <button
                 id="btn-my-balances"
                 onClick={() => setShowAccounts((s) => !s)}
